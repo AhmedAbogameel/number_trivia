@@ -23,6 +23,6 @@ class Params extends Equatable {
   Params({required this.number});
 
   @override
-  List<Object?> get props => throw [number];
+  List<Object?> get props => [number];
 
 }
