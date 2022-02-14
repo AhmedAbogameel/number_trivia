@@ -12,9 +12,9 @@ part 'number_trivia_event.dart';
 part 'number_trivia_state.dart';
 
 const String SERVER_FAILURE_MESSAGE = 'Server Failure';
-const String INVALID_INPUT_FAILURE_MESSAGE =
-    'Invalid Input - Number must be an integer and above 0 ';
+const String INVALID_INPUT_FAILURE_MESSAGE = 'Invalid Input - Number must be an integer and above 0 ';
 const String CACHE_FAILURE_MESSAGE = 'Cache Failure';
+const String UNEXPECTED_ERROR = 'Unexpected Error';
 
 class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
   final GetConcreteNumberTrivia getConcreteNumberTrivia;
@@ -62,7 +62,7 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
       case CacheFailure:
         return CACHE_FAILURE_MESSAGE;
       default:
-        return 'Unexpected error';
+        return UNEXPECTED_ERROR;
     }
   }
 }
