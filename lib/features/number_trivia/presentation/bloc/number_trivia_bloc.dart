@@ -12,7 +12,8 @@ part 'number_trivia_event.dart';
 part 'number_trivia_state.dart';
 
 const String SERVER_FAILURE_MESSAGE = 'Server Failure';
-const String INVALID_INPUT_FAILURE_MESSAGE = 'Invalid Input - Number must be an integer and above 0 ';
+const String INVALID_INPUT_FAILURE_MESSAGE =
+    'Invalid Input - Number must be an integer and above 0 ';
 const String CACHE_FAILURE_MESSAGE = 'Cache Failure';
 const String UNEXPECTED_ERROR = 'Unexpected Error';
 
@@ -27,15 +28,17 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
     required this.getConcreteNumberTrivia,
   }) : super(Empty()) {
     on<GetTriviaForConcreteNumber>(
-      (event, emit) {
+      (event, emit) async {
         final inputEither = inputConverter.stringToUnsignedInteger(event.numberString);
-        inputEither.fold(
-          (failure) => emit(Error(message: INVALID_INPUT_FAILURE_MESSAGE)),
-          (integer) async {
-            emit(Loading());
-            final failureOrTrivia = await getConcreteNumberTrivia(Params(number: integer));
-            _eitherLoadedOrErrorState(emit, failureOrTrivia);
-          },
+        await Future.sync(
+          () => inputEither.fold(
+            (failure) => emit(Error(message: INVALID_INPUT_FAILURE_MESSAGE)),
+            (integer) async {
+              emit(Loading());
+              final failureOrTrivia = await getConcreteNumberTrivia(Params(number: integer));
+              _eitherLoadedOrErrorState(emit, failureOrTrivia);
+            },
+          ),
         );
       },
     );
@@ -49,11 +52,12 @@ class NumberTriviaBloc extends Bloc<NumberTriviaEvent, NumberTriviaState> {
     );
   }
 
-  void _eitherLoadedOrErrorState(Emitter emit,Either<Failure, NumberTrivia> failureOrTrivia) =>
-    failureOrTrivia.fold(
-          (failure) => emit(Error(message: _mapFailureToMessage(failure))),
-          (trivia) => emit(Loaded(numberTrivia: trivia)),
-    );
+  void _eitherLoadedOrErrorState(Emitter<NumberTriviaState> emit,
+          Either<Failure, NumberTrivia> failureOrTrivia) =>
+      failureOrTrivia.fold(
+        (failure) => emit(Error(message: _mapFailureToMessage(failure))),
+        (trivia) => emit(Loaded(numberTrivia: trivia)),
+      );
 
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
